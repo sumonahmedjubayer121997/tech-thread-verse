@@ -1,14 +1,15 @@
-
 import { useState } from 'react';
 import { Clock, User, Calendar, BookOpen, Copy, Check, ArrowLeft, Share2, Bookmark } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const BlogPost = () => {
   const [copiedCode, setCopiedCode] = useState<number | null>(null);
+  const { id } = useParams<{ id: string }>();
 
   const post = {
     id: 1,
@@ -240,24 +241,25 @@ const UserCard: React.FC<UserCardProps> = ({
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Low': return 'bg-green-100 text-green-800 border-green-200';
-      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'High': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Low': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-100';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-100';
+      case 'High': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900 dark:text-red-100';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-100';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-10">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <Link to="/" className="flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-colors">
               <ArrowLeft className="w-5 h-5" />
               <span>Back to Blog</span>
             </Link>
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <Button variant="outline" size="sm">
                 <Share2 className="w-4 h-4 mr-2" />
                 Share
@@ -278,17 +280,17 @@ const UserCard: React.FC<UserCardProps> = ({
             <Badge className={`${getDifficultyColor(post.difficulty)} border`}>
               {post.difficulty}
             </Badge>
-            <div className="flex items-center text-gray-500 text-sm">
+            <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
               <Clock className="w-4 h-4 mr-1" />
               {post.readTime}
             </div>
-            <div className="flex items-center text-gray-500 text-sm">
+            <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
               <BookOpen className="w-4 h-4 mr-1" />
               {post.views} views
             </div>
           </div>
 
-          <h1 className="text-4xl font-bold text-gray-900 mb-6 leading-tight">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-6 leading-tight">
             {post.title}
           </h1>
 
@@ -300,7 +302,7 @@ const UserCard: React.FC<UserCardProps> = ({
             ))}
           </div>
 
-          <div className="flex items-center justify-between border-t border-gray-200 pt-6">
+          <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 pt-6">
             <div className="flex items-center space-x-4">
               <img
                 src={post.author.avatar}
@@ -309,17 +311,17 @@ const UserCard: React.FC<UserCardProps> = ({
               />
               <div>
                 <div className="flex items-center space-x-2">
-                  <h3 className="font-semibold text-gray-900">{post.author.name}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{post.author.name}</h3>
                 </div>
-                <p className="text-sm text-gray-600">{post.author.bio}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{post.author.bio}</p>
               </div>
             </div>
             <div className="text-right">
-              <div className="flex items-center text-gray-500 text-sm mb-1">
+              <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm mb-1">
                 <Calendar className="w-4 h-4 mr-1" />
                 {post.publishDate}
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 {post.likes} likes • {post.bookmarks} bookmarks
               </div>
             </div>
@@ -327,20 +329,20 @@ const UserCard: React.FC<UserCardProps> = ({
         </header>
 
         {/* Article Content */}
-        <div className="prose prose-lg max-w-none">
-          <div className="bg-white rounded-lg p-8 shadow-sm border">
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-sm border dark:border-gray-700">
             {/* Content sections */}
             <div className="space-y-6">
-              <p className="text-lg text-gray-700 leading-relaxed">
+              <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                 TypeScript has become an essential tool for building robust React applications. In this comprehensive guide, we'll explore how to set up, configure, and leverage TypeScript to create maintainable and scalable React applications.
               </p>
 
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Why TypeScript with React?</h2>
-                <p className="text-gray-700 mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Why TypeScript with React?</h2>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
                   TypeScript brings static typing to JavaScript, which provides several benefits when building React applications:
                 </p>
-                <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300 ml-4">
                   <li><strong>Better Developer Experience</strong>: Enhanced IntelliSense, auto-completion, and error detection</li>
                   <li><strong>Improved Code Quality</strong>: Catch errors at compile-time rather than runtime</li>
                   <li><strong>Better Refactoring</strong>: Safe and confident code refactoring</li>
@@ -349,8 +351,8 @@ const UserCard: React.FC<UserCardProps> = ({
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Setting Up the Project</h2>
-                <p className="text-gray-700 mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Setting Up the Project</h2>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
                   Let's start by creating a new React application with TypeScript support:
                 </p>
                 
@@ -381,8 +383,8 @@ const UserCard: React.FC<UserCardProps> = ({
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Component Props with TypeScript</h2>
-                <p className="text-gray-700 mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Component Props with TypeScript</h2>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
                   One of the most important aspects of TypeScript in React is properly typing your component props:
                 </p>
                 
@@ -413,11 +415,11 @@ const UserCard: React.FC<UserCardProps> = ({
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Best Practices</h2>
-                <p className="text-gray-700 mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Best Practices</h2>
+                <p className="text-gray-700 dark:text-gray-300 mb-4">
                   Here are some key best practices when working with TypeScript and React:
                 </p>
-                <ol className="list-decimal list-inside space-y-2 text-gray-700 ml-4">
+                <ol className="list-decimal list-inside space-y-2 text-gray-700 dark:text-gray-300 ml-4">
                   <li><strong>Use Interfaces for Props</strong>: Define clear interfaces for your component props</li>
                   <li><strong>Leverage Union Types</strong>: Use union types for props that can have multiple values</li>
                   <li><strong>Generic Components</strong>: Create reusable components with generic types</li>
@@ -427,11 +429,11 @@ const UserCard: React.FC<UserCardProps> = ({
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Conclusion</h2>
-                <p className="text-gray-700">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Conclusion</h2>
+                <p className="text-gray-700 dark:text-gray-300">
                   TypeScript significantly improves the React development experience by providing better tooling, catching errors early, and making code more maintainable. While there's a learning curve, the benefits far outweigh the initial investment in learning TypeScript.
                 </p>
-                <p className="text-gray-700 mt-4">
+                <p className="text-gray-700 dark:text-gray-300 mt-4">
                   Start small by adding TypeScript to existing components gradually, and you'll quickly see the benefits in your development workflow.
                 </p>
               </div>
@@ -440,7 +442,7 @@ const UserCard: React.FC<UserCardProps> = ({
         </div>
 
         {/* Author Bio */}
-        <div className="mt-12 p-6 bg-white rounded-lg border">
+        <div className="mt-12 p-6 bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700">
           <div className="flex items-start space-x-4">
             <img
               src={post.author.avatar}
@@ -448,8 +450,8 @@ const UserCard: React.FC<UserCardProps> = ({
               className="w-16 h-16 rounded-full"
             />
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">About {post.author.name}</h3>
-              <p className="text-gray-600 mb-4">{post.author.bio}</p>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">About {post.author.name}</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">{post.author.bio}</p>
               <div className="flex space-x-4">
                 <Button variant="outline" size="sm">Follow</Button>
                 <Button variant="outline" size="sm">More Articles</Button>
