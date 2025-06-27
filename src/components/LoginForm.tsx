@@ -10,22 +10,31 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const { signIn, signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      await signIn(email, password);
-      toast({
-        title: "Success",
-        description: "Logged in successfully!",
-      });
+      if (isSignUp) {
+        await signUp(email, password);
+        toast({
+          title: "Success",
+          description: "Account created successfully! You are now logged in.",
+        });
+      } else {
+        await signIn(email, password);
+        toast({
+          title: "Success",
+          description: "Logged in successfully!",
+        });
+      }
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to log in",
+        description: error.message || `Failed to ${isSignUp ? 'create account' : 'log in'}`,
         variant: "destructive",
       });
     } finally {
@@ -36,7 +45,7 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Admin Login</CardTitle>
+        <CardTitle>{isSignUp ? 'Create Admin Account' : 'Admin Login'}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -59,7 +68,15 @@ export function LoginForm() {
             />
           </div>
           <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? 'Logging in...' : 'Login'}
+            {isLoading ? (isSignUp ? 'Creating Account...' : 'Logging in...') : (isSignUp ? 'Create Account' : 'Login')}
+          </Button>
+          <Button 
+            type="button" 
+            variant="ghost" 
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="w-full"
+          >
+            {isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up'}
           </Button>
         </form>
       </CardContent>
