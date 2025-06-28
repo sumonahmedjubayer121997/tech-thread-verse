@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Bold, Italic, List, Heading1, Heading2, Heading3, Image, Video, Undo, Redo } from 'lucide-react';
+import { Bold, Italic, List, Heading1, Heading2, Heading3, Image, Video, Undo, Redo, Code } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
 interface RichTextEditorProps {
@@ -82,6 +81,19 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     formatText('formatBlock', `h${level}`);
   };
 
+  const insertCodeBlock = () => {
+    const language = prompt('Enter language (e.g., javascript, bash, python):') || 'text';
+    const codeContent = prompt('Enter your code:') || '';
+    
+    if (codeContent) {
+      const codeBlock = `<pre data-language="${language}"><code>${codeContent}</code></pre><p><br></p>`;
+      document.execCommand('insertHTML', false, codeBlock);
+      const content = editorRef.current?.innerHTML || '';
+      onChange(content);
+      saveToHistory(content);
+    }
+  };
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -146,6 +158,64 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           redo();
           break;
       }
+    }
+  };
+
+  const renderPreviewContent = (html: string) => {
+    // Parse HTML and render code blocks with syntax highlighting
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const codeBlocks = doc.querySelectorAll('pre[data-language]');
+    
+    let processedHtml = html;
+    
+    codeBlocks.forEach((block, index) => {
+      const language = block.getAttribute('data-language') || 'text';
+      const code = block.querySelector('code')?.textContent || '';
+      const blockId = `code-block-${index}`;
+      
+      const codeBlockHtml = `
+        <div class="code-block-container bg-gray-900 rounded-lg overflow-hidden my-4">
+          <div class="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
+            <span class="text-sm font-medium text-gray-300">${language}</span>
+            <button 
+              class="copy-btn text-gray-300 hover:text-white hover:bg-gray-700 p-1 rounded"
+              data-code="${encodeURIComponent(code)}"
+              title="Copy code"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                <path d="m4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+              </svg>
+            </button>
+          </div>
+          <pre class="p-4 overflow-x-auto text-sm text-gray-100 font-mono"><code class="language-${language}">${code}</code></pre>
+        </div>
+      `;
+      
+      processedHtml = processedHtml.replace(block.outerHTML, codeBlockHtml);
+    });
+    
+    return processedHtml;
+  };
+
+  const handleCopyCode = (event: React.MouseEvent) => {
+    const target = event.target as HTMLElement;
+    const button = target.closest('.copy-btn') as HTMLButtonElement;
+    if (button) {
+      const code = decodeURIComponent(button.getAttribute('data-code') || '');
+      navigator.clipboard.writeText(code).then(() => {
+        toast({
+          title: "Code copied!",
+          description: "The code block has been copied to your clipboard.",
+        });
+      }).catch(() => {
+        toast({
+          title: "Failed to copy",
+          description: "Could not copy code to clipboard.",
+          variant: "destructive",
+        });
+      });
     }
   };
 
@@ -243,6 +313,18 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
         <Separator orientation="vertical" className="h-6 mx-1" />
 
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={insertCodeBlock}
+          title="Insert Code Block"
+        >
+          <Code className="w-4 h-4" />
+        </Button>
+
+        <Separator orientation="vertical" className="h-6 mx-1" />
+
         <label>
           <Button
             type="button"
@@ -281,7 +363,8 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         {isPreview ? (
           <div 
             className="p-4 prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: value }}
+            dangerouslySetInnerHTML={{ __html: renderPreviewContent(value) }}
+            onClick={handleCopyCode}
           />
         ) : (
           <div
