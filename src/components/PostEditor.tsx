@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -21,13 +20,17 @@ import { RichTextEditor } from './RichTextEditor';
 import { toast } from '@/hooks/use-toast';
 
 interface Post {
-  id?: number;
+  id?: number | string;
   title: string;
   author: string;
   status: 'draft' | 'published';
   content: string;
   views: number;
   publishDate: string;
+  readingLevel: 'low' | 'medium' | 'high';
+  tags: string[];
+  featureImage: string;
+  postImages: string[];  // NEW: other images in post
 }
 
 interface PostEditorProps {
@@ -50,6 +53,10 @@ export const PostEditor: React.FC<PostEditorProps> = ({
     content: '',
     views: 0,
     publishDate: new Date().toISOString().split('T')[0],
+    readingLevel: 'medium',
+    tags: [],
+    featureImage: '',
+    postImages: [],
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -66,12 +73,16 @@ export const PostEditor: React.FC<PostEditorProps> = ({
         content: '',
         views: 0,
         publishDate: new Date().toISOString().split('T')[0],
+        readingLevel: 'medium',
+        tags: [],
+        featureImage: '',
+        postImages: [],
       });
     }
     setHasUnsavedChanges(false);
   }, [post, open]);
 
-  const handleInputChange = (field: keyof Post, value: string | number) => {
+  const handleInputChange = (field: keyof Post, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setHasUnsavedChanges(true);
   };
@@ -105,22 +116,25 @@ export const PostEditor: React.FC<PostEditorProps> = ({
     }
 
     setIsSaving(true);
-    
+
     try {
       const postToSave = {
         ...formData,
-        id: post?.id || Date.now(), // Simple ID generation for demo
-        publishDate: formData.status === 'published' ? new Date().toISOString().split('T')[0] : formData.publishDate,
+        id: post?.id || Date.now(),
+        publishDate:
+          formData.status === 'published'
+            ? new Date().toISOString().split('T')[0]
+            : formData.publishDate,
       };
 
       onSave(postToSave);
       setHasUnsavedChanges(false);
-      
+
       toast({
         title: "Success",
         description: `Post ${post ? 'updated' : 'created'} successfully!`,
       });
-      
+
       onOpenChange(false);
     } catch (error) {
       toast({
@@ -158,7 +172,6 @@ export const PostEditor: React.FC<PostEditorProps> = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="title">Title *</Label>
@@ -167,7 +180,6 @@ export const PostEditor: React.FC<PostEditorProps> = ({
                 value={formData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
                 placeholder="Enter post title..."
-                className="w-full"
               />
             </div>
 
@@ -178,17 +190,16 @@ export const PostEditor: React.FC<PostEditorProps> = ({
                 value={formData.author}
                 onChange={(e) => handleInputChange('author', e.target.value)}
                 placeholder="Author name..."
-                className="w-full"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
+              <Label>Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value: 'draft' | 'published') => 
+                onValueChange={(value: 'draft' | 'published') =>
                   handleInputChange('status', value)
                 }
               >
@@ -198,6 +209,25 @@ export const PostEditor: React.FC<PostEditorProps> = ({
                 <SelectContent>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="published">Published</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Reading Level</Label>
+              <Select
+                value={formData.readingLevel}
+                onValueChange={(value: 'low' | 'medium' | 'high') =>
+                  handleInputChange('readingLevel', value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reading level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -213,7 +243,68 @@ export const PostEditor: React.FC<PostEditorProps> = ({
             </div>
           </div>
 
-          {/* Content Editor */}
+          <div className="space-y-2">
+            <Label>Tags (comma separated)</Label>
+            <Input
+              value={formData.tags.join(', ')}
+              onChange={(e) =>
+                handleInputChange(
+                  'tags',
+                  e.target.value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag)
+                )
+              }
+              placeholder="React, JavaScript, TypeScript"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Feature Image URL</Label>
+            <Input
+              value={formData.featureImage}
+              onChange={(e) => handleInputChange('featureImage', e.target.value)}
+              placeholder="https://example.com/feature.jpg"
+            />
+            {formData.featureImage && (
+              <img
+                src={formData.featureImage}
+                alt="Feature"
+                className="w-full max-w-xs rounded mt-2"
+              />
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Post Image URLs (comma separated)</Label>
+            <Input
+              value={formData.postImages.join(', ')}
+              onChange={(e) =>
+                handleInputChange(
+                  'postImages',
+                  e.target.value
+                    .split(',')
+                    .map(url => url.trim())
+                    .filter(url => url)
+                )
+              }
+              placeholder="https://example.com/1.jpg, https://example.com/2.jpg"
+            />
+            {formData.postImages.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {formData.postImages.map((url, idx) => (
+                  <img
+                    key={idx}
+                    src={url}
+                    alt={`Post image ${idx + 1}`}
+                    className="w-24 h-24 object-cover rounded"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label>Content *</Label>
             <RichTextEditor
@@ -224,12 +315,11 @@ export const PostEditor: React.FC<PostEditorProps> = ({
             />
           </div>
 
-          {/* Actions */}
           <div className="flex justify-between items-center pt-4 border-t">
             <div className="text-sm text-muted-foreground">
               {hasUnsavedChanges ? "You have unsaved changes" : "All changes saved"}
             </div>
-            
+
             <div className="flex gap-2">
               <Button
                 type="button"
@@ -239,7 +329,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
               >
                 Cancel
               </Button>
-              
+
               <Button
                 type="button"
                 onClick={() => handleInputChange('status', 'draft')}
@@ -249,7 +339,7 @@ export const PostEditor: React.FC<PostEditorProps> = ({
               >
                 Save as Draft
               </Button>
-              
+
               <Button
                 type="button"
                 onClick={handleSave}
