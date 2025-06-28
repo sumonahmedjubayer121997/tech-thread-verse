@@ -1,13 +1,18 @@
-
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { 
+  BookOpen, Clock, Star, Search, Filter, Code, Zap, Users, Menu, User, LogOut, Heart 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
+import { 
+  NavigationMenu, NavigationMenuContent, NavigationMenuItem, 
+  NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger 
+} from '@/components/ui/navigation-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Menu, User, BookOpen, LogOut, Heart, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Link as RouterLink } from 'react-router-dom';
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -76,10 +81,12 @@ export function Navigation() {
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">DB</span>
+               <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+                <Code className="w-5 h-5 text-white" />
               </div>
-              <span className="font-bold text-xl hidden sm:block">DevBlog</span>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                DevBlog
+              </h1>
             </Link>
           </div>
 

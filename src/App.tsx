@@ -8,6 +8,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Navigation } from "@/components/Navigation";
 import Index from "./pages/Index";
+
+import Blogs from "./pages/Blogs";
 import BlogPost from "./pages/BlogPost";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
@@ -25,11 +27,13 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900">
               <Navigation />
               <main className="container mx-auto px-4 py-8">
                 <Routes>
                   <Route path="/" element={<Index />} />
+
+                  <Route path="/blogs" element={<Blogs/>} />
                   <Route path="/blog/:id" element={<BlogPost />} />
                   <Route path="/admin" element={<Admin />} />
                   <Route path="/login" element={<Login />} />

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Clock, Star, Search, Filter, Code } from 'lucide-react';
+import { BookOpen, Clock, Star, Search, Filter, Code, Zap, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -71,8 +71,64 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900">
+   <div className="min-h-screen  bg-gradient-to-br  from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900">
+      {/* Header */}
      
+
+      {/* Hero Section */}
+      <section className="py-16 -mt-6 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto text-center">
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            Where Developers
+            <span className="block bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Share Knowledge
+            </span>
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+            Discover the latest in web development, programming tutorials, and technical insights from experienced developers around the world.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <div className="relative max-w-md w-full">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                placeholder="Search articles, tutorials, guides..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-3 w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+              />
+            </div>
+            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600">
+              <Filter className="w-4 h-4 mr-2" />
+              Advanced Search
+            </Button>
+          </div>
+          
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <BookOpen className="w-6 h-6 text-purple-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">500+</div>
+              <div className="text-gray-600 dark:text-gray-400">Technical Articles</div>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Users className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">10K+</div>
+              <div className="text-gray-600 dark:text-gray-400">Active Readers</div>
+            </div>
+            <div className="text-center">
+              <div className="w-12 h-12 bg-cyan-100 dark:bg-cyan-900 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Zap className="w-6 h-6 text-cyan-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">50+</div>
+              <div className="text-gray-600 dark:text-gray-400">Expert Authors</div>
+            </div>
+          </div>
+        </div>
+      </section>
      {/* Featured Articles */}
       <section className="py-12 max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
