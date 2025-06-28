@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -27,7 +28,7 @@ export function LoginForm() {
       } else {
         await signIn(email, password);
         toast({
-          title: "Success",
+          title: "Success", 
           description: "Logged in successfully!",
         });
       }
@@ -56,6 +57,7 @@ export function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
           <div>
@@ -65,16 +67,22 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
           <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? (isSignUp ? 'Creating Account...' : 'Logging in...') : (isSignUp ? 'Create Account' : 'Login')}
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading 
+              ? (isSignUp ? 'Creating Account...' : 'Logging in...') 
+              : (isSignUp ? 'Create Account' : 'Login')
+            }
           </Button>
           <Button 
             type="button" 
             variant="ghost" 
             onClick={() => setIsSignUp(!isSignUp)}
             className="w-full"
+            disabled={isLoading}
           >
             {isSignUp ? 'Already have an account? Login' : 'Need an account? Sign Up'}
           </Button>
