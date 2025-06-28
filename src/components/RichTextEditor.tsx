@@ -1,15 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Bold, Italic, List, Heading1, Heading2, Heading3, Image, Video, Undo, Redo, Code } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
 
-interface RichTextEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-}
+import React, { useState, useEffect, useRef } from 'react';
+import { toast } from '@/hooks/use-toast';
+import { EditorToolbar } from './rich-text-editor/EditorToolbar';
+import { EditorContent } from './rich-text-editor/EditorContent';
+import { EditorPreview } from './rich-text-editor/EditorPreview';
+import { RichTextEditorProps } from './rich-text-editor/types';
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
@@ -161,44 +156,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
-  const renderPreviewContent = (html: string) => {
-    // Parse HTML and render code blocks with syntax highlighting
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const codeBlocks = doc.querySelectorAll('pre[data-language]');
-    
-    let processedHtml = html;
-    
-    codeBlocks.forEach((block, index) => {
-      const language = block.getAttribute('data-language') || 'text';
-      const code = block.querySelector('code')?.textContent || '';
-      const blockId = `code-block-${index}`;
-      
-      const codeBlockHtml = `
-        <div class="code-block-container bg-gray-900 rounded-lg overflow-hidden my-4">
-          <div class="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700">
-            <span class="text-sm font-medium text-gray-300">${language}</span>
-            <button 
-              class="copy-btn text-gray-300 hover:text-white hover:bg-gray-700 p-1 rounded"
-              data-code="${encodeURIComponent(code)}"
-              title="Copy code"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
-                <path d="m4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
-              </svg>
-            </button>
-          </div>
-          <pre class="p-4 overflow-x-auto text-sm text-gray-100 font-mono"><code class="language-${language}">${code}</code></pre>
-        </div>
-      `;
-      
-      processedHtml = processedHtml.replace(block.outerHTML, codeBlockHtml);
-    });
-    
-    return processedHtml;
-  };
-
   const handleCopyCode = (event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
     const button = target.closest('.copy-btn') as HTMLButtonElement;
@@ -221,172 +178,34 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   return (
     <div className={`border rounded-lg bg-background ${className}`}>
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-muted/50">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={undo}
-          disabled={historyIndex <= 0}
-          title="Undo"
-        >
-          <Undo className="w-4 h-4" />
-        </Button>
-        
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={redo}
-          disabled={historyIndex >= history.length - 1}
-          title="Redo"
-        >
-          <Redo className="w-4 h-4" />
-        </Button>
+      <EditorToolbar
+        onFormatText={formatText}
+        onInsertHeading={insertHeading}
+        onInsertCodeBlock={insertCodeBlock}
+        onImageUpload={handleImageUpload}
+        onUndo={undo}
+        onRedo={redo}
+        canUndo={historyIndex > 0}
+        canRedo={historyIndex < history.length - 1}
+        isPreview={isPreview}
+        onTogglePreview={() => setIsPreview(!isPreview)}
+      />
 
-        <Separator orientation="vertical" className="h-6 mx-1" />
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => formatText('bold')}
-          title="Bold"
-        >
-          <Bold className="w-4 h-4" />
-        </Button>
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => formatText('italic')}
-          title="Italic"
-        >
-          <Italic className="w-4 h-4" />
-        </Button>
-
-        <Separator orientation="vertical" className="h-6 mx-1" />
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => insertHeading(1)}
-          title="Heading 1"
-        >
-          <Heading1 className="w-4 h-4" />
-        </Button>
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => insertHeading(2)}
-          title="Heading 2"
-        >
-          <Heading2 className="w-4 h-4" />
-        </Button>
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => insertHeading(3)}
-          title="Heading 3"
-        >
-          <Heading3 className="w-4 h-4" />
-        </Button>
-
-        <Separator orientation="vertical" className="h-6 mx-1" />
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => formatText('insertUnorderedList')}
-          title="Bullet List"
-        >
-          <List className="w-4 h-4" />
-        </Button>
-
-        <Separator orientation="vertical" className="h-6 mx-1" />
-
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={insertCodeBlock}
-          title="Insert Code Block"
-        >
-          <Code className="w-4 h-4" />
-        </Button>
-
-        <Separator orientation="vertical" className="h-6 mx-1" />
-
-        <label>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            title="Insert Image"
-            asChild
-          >
-            <span>
-              <Image className="w-4 h-4" />
-            </span>
-          </Button>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-        </label>
-
-        <Separator orientation="vertical" className="h-6 mx-1" />
-
-        <Button
-          type="button"
-          variant={isPreview ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setIsPreview(!isPreview)}
-          title="Toggle Preview"
-        >
-          {isPreview ? "Edit" : "Preview"}
-        </Button>
-      </div>
-
-      {/* Editor Content */}
       <div className="min-h-[300px] max-h-[500px] overflow-y-auto">
         {isPreview ? (
-          <div 
-            className="p-4 prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: renderPreviewContent(value) }}
-            onClick={handleCopyCode}
+          <EditorPreview
+            value={value}
+            onCopyCode={handleCopyCode}
           />
         ) : (
-          <div
-            ref={editorRef}
-            contentEditable
-            className="p-4 min-h-[300px] outline-none focus:ring-0"
-            onInput={handleContentChange}
+          <EditorContent
+            editorRef={editorRef}
+            onContentChange={handleContentChange}
             onKeyDown={handleKeyDown}
             onDrop={handleDrop}
-            onDragOver={(e) => e.preventDefault()}
-            style={{ lineHeight: '1.6' }}
-            role="textbox"
-            aria-label="Rich text editor"
-            tabIndex={0}
-            suppressContentEditableWarning={true}
+            value={value}
+            placeholder={placeholder}
           />
-        )}
-        
-        {!isPreview && !value && (
-          <div className="absolute top-[60px] left-4 pointer-events-none text-muted-foreground">
-            {placeholder}
-          </div>
         )}
       </div>
 
