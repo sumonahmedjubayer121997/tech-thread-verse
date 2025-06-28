@@ -23,6 +23,17 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [history, setHistory] = useState<string[]>([value]);
   const [historyIndex, setHistoryIndex] = useState(0);
 
+  // Initialize editor content only once when component mounts or value changes externally
+  useEffect(() => {
+    if (editorRef.current && !isPreview) {
+      // Only update if the content is significantly different (not just from user typing)
+      const currentContent = editorRef.current.innerHTML;
+      if (value !== currentContent && value !== history[historyIndex]) {
+        editorRef.current.innerHTML = value;
+      }
+    }
+  }, [value, isPreview]);
+
   // Autosave functionality
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -107,6 +118,35 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const handleContentChange = () => {
     const content = editorRef.current?.innerHTML || '';
     onChange(content);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Handle common keyboard shortcuts
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'b':
+          e.preventDefault();
+          formatText('bold');
+          break;
+        case 'i':
+          e.preventDefault();
+          formatText('italic');
+          break;
+        case 'z':
+          if (e.shiftKey) {
+            e.preventDefault();
+            redo();
+          } else {
+            e.preventDefault();
+            undo();
+          }
+          break;
+        case 'y':
+          e.preventDefault();
+          redo();
+          break;
+      }
+    }
   };
 
   return (
@@ -249,14 +289,21 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             contentEditable
             className="p-4 min-h-[300px] outline-none focus:ring-0"
             onInput={handleContentChange}
+            onKeyDown={handleKeyDown}
             onDrop={handleDrop}
             onDragOver={(e) => e.preventDefault()}
-            dangerouslySetInnerHTML={{ __html: value }}
             style={{ lineHeight: '1.6' }}
             role="textbox"
             aria-label="Rich text editor"
             tabIndex={0}
+            suppressContentEditableWarning={true}
           />
+        )}
+        
+        {!isPreview && !value && (
+          <div className="absolute top-[60px] left-4 pointer-events-none text-muted-foreground">
+            {placeholder}
+          </div>
         )}
       </div>
 
